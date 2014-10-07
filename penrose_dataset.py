@@ -117,23 +117,26 @@ class Rhomb(object):
         self.id = len(population)
         self.sides = []
         self.neighbours = []
-        self.a1 = {"x":elem.a.imag, "y":-elem.a.real}
+        a1 = {"x":elem.a.imag, "y":-elem.a.real}
         r = elem.b - elem.a
-        self.a2 = {"x":self.a1['x'] + r.imag, "y":self.a1['y'] - r.real}
+        a2 = {"x":a1['x'] + r.imag, "y":a1['y'] - r.real}
         r = elem.c - elem.b
-        self.a3 = {"x":self.a2['x'] + r.imag, "y":self.a2['y'] - r.real}
+        a3 = {"x":a2['x'] + r.imag, "y":a2['y'] - r.real}
         r = elem.a - elem.b
-        self.a4 = {"x":self.a3['x'] + r.imag, "y":self.a3['y'] - r.real}
-        self.sides.append("C%fx%fy" % ((self.a1['x'] + self.a2['x']) * 0.5, (self.a1['y'] + self.a2['y']) * 0.5))
-        self.sides.append("C%fx%fy" % ((self.a2['x'] + self.a3['x']) * 0.5, (self.a2['y'] + self.a3['y']) * 0.5))
-        self.sides.append("C%fx%fy" % ((self.a3['x'] + self.a4['x']) * 0.5, (self.a3['y'] + self.a4['y']) * 0.5))
-        self.sides.append("C%fx%fy" % ((self.a4['x'] + self.a1['x']) * 0.5, (self.a4['y'] + self.a1['y']) * 0.5))
+        a4 = {"x":a3['x'] + r.imag, "y":a3['y'] - r.real}
+        self.sides.append("C%fx%fy" % ((a1['x'] + a2['x']) * 0.5, (a1['y'] + a2['y']) * 0.5))
+        self.sides.append("C%fx%fy" % ((a2['x'] + a3['x']) * 0.5, (a2['y'] + a3['y']) * 0.5))
+        self.sides.append("C%fx%fy" % ((a3['x'] + a4['x']) * 0.5, (a3['y'] + a4['y']) * 0.5))
+        self.sides.append("C%fx%fy" % ((a4['x'] + a1['x']) * 0.5, (a4['y'] + a1['y']) * 0.5))
         for side in self.sides:
             for rhomb_id in sides.setdefault(side, []):
                 population[rhomb_id].setdefault('neighbours', []).append(self.id) #append("back#%i: %s" % (self.id, side))
                 neighbours.append(rhomb_id) #append(" ref#%i: %s" % (rhomb_id, side))
             sides[side].append(self.id)
-        population[self.id] = {"id": self.id, "a1": self.a1, "a2": self.a2, "a3": self.a3, "a4": self.a4, "neighbours": neighbours}
+        population[self.id] = {"id": self.id, "type": "fat" if fill(elem) == COLOR_FAT else "thin"
+            , "a1": a1, "a2": a2, "a3": a3, "a4": a4
+            , "neighbours": neighbours
+            , "area": ((a3['x']-a1['x'])**2+(a3['y']-a1['y'])**2)**0.5 * ((a4['x']-a2['x'])**2+(a4['y']-a2['y'])**2)**0.5 / 2}
 
 def fill(elem):
     u"""Returns a color value for a Robinson triangle, depending on type."""
