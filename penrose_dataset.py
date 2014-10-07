@@ -156,15 +156,28 @@ def cull(oldpop):
             oldpop.append(sortpop[i][2])
     return oldpop
 
-def region(oldpop):
-    u"""Deletes elements from periferials."""
-    sortpop = [(elem.center().real, elem.center().imag, elem) for elem in oldpop]
-    sortpop.sort()
-    oldpop = [sortpop[0][2]]
-    for i in range(1, len(sortpop)):
-        if abs(sortpop[i-1][2].center() - sortpop[i][2].center()) > 0.0001:
-            oldpop.append(sortpop[i][2])
-    return oldpop
+def edgejoin(population):
+    u"""Join elements on edges so that every element has 4 neighbours."""
+    lix = 0
+    rix = len(population)-1
+    rmargin = rix
+    while lix < rix:
+        lelem = population[lix]
+        relem = population[rix]
+        restarted = True
+        while len(lelem['neighbours']) < 4:
+            while len(relem['neighbours']) == 4:
+                if restarted:
+                    rmargin = rix
+                rix -= 1
+                relem = population[rix]
+            lelem['neighbours'].append(rix)
+            relem['neighbours'].append(lix)
+            rix -= 1
+            relem = population[rix]
+            restarted = False
+        lix += 1
+        rix = rmargin
 
 def main():
     # Construct the initial star
@@ -204,6 +217,7 @@ def main():
     # Register population and neighbours
     for elem in oldpop:
         Rhomb(elem)
+    edgejoin(population)
     with open("penrose_p3_star_%02d.json" % NUMBER_OF_GENERATIONS, "w") as outfile:
         outfile.write(json.dumps(population))
 
